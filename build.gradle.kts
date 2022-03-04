@@ -6,11 +6,10 @@ plugins {
 	war
 	kotlin("jvm") version "1.6.10"
 	kotlin("plugin.spring") version "1.6.10"
-	id("io.kotest") version "0.3.9"
 }
 
 group = "com.truelayer"
-version = "5.1.0"
+version = "1.0.0-SNAPSHOT"
 java.sourceCompatibility = JavaVersion.VERSION_17
 
 repositories {
@@ -22,9 +21,9 @@ dependencies {
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
 	implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     providedRuntime("org.springframework.boot:spring-boot-starter-tomcat")
+	testImplementation("org.junit.jupiter:junit-jupiter:5.8.2")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
-	testImplementation("io.kotest:kotest-assertions-core-jvm")
-	testImplementation("io.kotest:kotest-framework-engine-jvm")
+	testImplementation("org.hamcrest:java-hamcrest:2.0.0.0")
 }
 
 tasks.withType<KotlinCompile> {
