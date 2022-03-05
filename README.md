@@ -1,5 +1,9 @@
 # pokemon-backend
 
+## How to build the package
+
+    ./gradlew build
+
 ## How to run locally
 
     ./gradlew bootRun
