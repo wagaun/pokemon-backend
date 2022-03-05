@@ -5,6 +5,8 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.truelayer.pokemonbackend.client.PokeApiClient
 import com.truelayer.pokemonbackend.client.model.PokeApiClientPokemonSpecies
+import org.springframework.beans.factory.annotation.Qualifier
+import org.springframework.stereotype.Component
 import java.lang.Exception
 import java.net.URI
 import java.net.http.HttpClient
@@ -15,7 +17,8 @@ import java.time.Duration
 /**
  * Implements PokeApiClient calling pokeapi.co pokemon-species API. It uses Java HttpClient to make Http calls.
  */
-class JavaHttpClientPokeApiClient(private val timeoutSeconds: Long, private val objectMapper: ObjectMapper) : PokeApiClient {
+@Component
+class JavaHttpClientPokeApiClient(@Qualifier("pokeApiTimeoutSeconds") private val timeoutSeconds: Long, private val objectMapper: ObjectMapper) : PokeApiClient {
 
     companion object {
         const val DEFAULT_LANGUAGE_NAME = "en"
@@ -34,7 +37,7 @@ class JavaHttpClientPokeApiClient(private val timeoutSeconds: Long, private val 
         return if (statusCode / 100 == 2) {
             val body = objectMapper.readValue(response.body(), ApiResponse::class.java)
             Result.success(PokeApiClientPokemonSpecies(name = body.name,
-                flavorText = body.flavorTextEntries.find { entry -> DEFAULT_LANGUAGE_NAME == entry.language.name }?.flavourText,
+                flavorText = body.flavorTextEntries.find { entry -> DEFAULT_LANGUAGE_NAME == entry.language.name }?.flavorText,
                 habitatName = body.habitat?.name,
                 legendary = body.legendary))
         } else {
@@ -52,11 +55,11 @@ class JavaHttpClientPokeApiClient(private val timeoutSeconds: Long, private val 
     data class ApiResponse(@JsonProperty("name") val name: String,
                            @JsonProperty("is_legendary") val legendary: Boolean?,
                            @JsonProperty("habitat") val habitat: Habitat?,
-                           @JsonProperty("flavor_text_entries") val flavorTextEntries: List<FlavourTextEntry>)
+                           @JsonProperty("flavor_text_entries") val flavorTextEntries: List<FlavorTextEntry>)
     @JsonIgnoreProperties(ignoreUnknown = true)
     data class Habitat(@JsonProperty("name") val name: String)
     @JsonIgnoreProperties(ignoreUnknown = true)
-    data class FlavourTextEntry(@JsonProperty("flavor_text") val flavourText: String,
+    data class FlavorTextEntry(@JsonProperty("flavor_text") val flavorText: String,
                                 @JsonProperty("language") val language: Language)
     @JsonIgnoreProperties(ignoreUnknown = true)
     data class Language(@JsonProperty("name") val name: String)
