@@ -84,6 +84,23 @@ internal class PokemonRestControllerTest {
     }
 
     @Test
+    fun `Test pokemon non 404 client error`() {
+        // Arrange
+        val pokemonName = "Boris"
+        val clientException = JavaHttpClientPokeApiClient.PokeApiException(httpStatusCode = 500,
+            message = "Client 500 exception")
+        every { pokeApiClient.getPokemonData(pokemonName) } returns Result.failure(clientException)
+
+        // Act
+        val controllerException = assertFailsWith<JavaHttpClientPokeApiClient.PokeApiException>{
+            controller.pokemon(pokemonName)
+        }
+
+        // Assert
+        assertThat(controllerException, equalTo(clientException))
+    }
+
+    @Test
     fun `Test translatedPokemon method`() {
         val output = controller.translatedPokemon("pikachu")
         assertThat(output.name, equalTo("pikachu"))
