@@ -41,6 +41,11 @@ tasks.withType<Test> {
 	useJUnitPlatform()
 }
 
+// This was done in order to generate a single war file, this can be risky as I'm not sure exactly why it's needed.
+tasks.getByName<War>("war") {
+	enabled = false
+}
+
 tasks.test {
 	finalizedBy(tasks.jacocoTestReport) // report is always generated after tests run
 }
