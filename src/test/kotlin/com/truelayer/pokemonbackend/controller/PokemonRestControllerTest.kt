@@ -120,7 +120,7 @@ internal class PokemonRestControllerTest {
         )
         val translated = "British Pokemon Boris I am"
         every { pokeApiClient.getPokemonData(pokemonName) } returns Result.success(clientOutput)
-        every { yodaFunTranslationsApiClient.translate(flavorText) } returns Result.success(FunTranslationsApiClient.Translated(translated))
+        every { shakespeareFunTranslationsApiClient.translate(flavorText) } returns Result.success(FunTranslationsApiClient.Translated(translated))
 
         // Act
         val output = controller.translatedPokemon(pokemonName)
@@ -145,7 +145,7 @@ internal class PokemonRestControllerTest {
             flavorText = flavorText,
         )
         every { pokeApiClient.getPokemonData(pokemonName) } returns Result.success(clientOutput)
-        every { yodaFunTranslationsApiClient.translate(flavorText) } returns Result.failure(RuntimeException())
+        every { shakespeareFunTranslationsApiClient.translate(flavorText) } returns Result.failure(RuntimeException())
 
         // Act
         val output = controller.translatedPokemon(pokemonName)
@@ -171,7 +171,7 @@ internal class PokemonRestControllerTest {
         )
         val translated = "To be or not to be"
         every { pokeApiClient.getPokemonData(pokemonName) } returns Result.success(clientOutput)
-        every { shakespeareFunTranslationsApiClient.translate(flavorText) } returns Result.success(FunTranslationsApiClient.Translated(translated))
+        every { yodaFunTranslationsApiClient.translate(flavorText) } returns Result.success(FunTranslationsApiClient.Translated(translated))
 
         // Act
         val output = controller.translatedPokemon(pokemonName)
@@ -197,7 +197,7 @@ internal class PokemonRestControllerTest {
         )
         val translated = "To be or not to be"
         every { pokeApiClient.getPokemonData(pokemonName) } returns Result.success(clientOutput)
-        every { shakespeareFunTranslationsApiClient.translate(flavorText) } returns Result.success(FunTranslationsApiClient.Translated(translated))
+        every { yodaFunTranslationsApiClient.translate(flavorText) } returns Result.success(FunTranslationsApiClient.Translated(translated))
 
         // Act
         val output = controller.translatedPokemon(pokemonName)
@@ -222,7 +222,7 @@ internal class PokemonRestControllerTest {
             flavorText = flavorText,
         )
         every { pokeApiClient.getPokemonData(pokemonName) } returns Result.success(clientOutput)
-        every { shakespeareFunTranslationsApiClient.translate(flavorText) } returns Result.failure(RuntimeException())
+        every { yodaFunTranslationsApiClient.translate(flavorText) } returns Result.failure(RuntimeException())
 
         // Act
         val output = controller.translatedPokemon(pokemonName)

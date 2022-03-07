@@ -60,9 +60,9 @@ class PokemonRestController(@Autowired val pokeApiClient: PokeApiClient,
         return output.copy(
             description =
                 if ("cave" == output.habitat || output.legendary.let { it != null && it }) {
-                    handleTranslationWithFallback(output.description!!, shakespeareFunTranslationsApiClient)
-                } else {
                     handleTranslationWithFallback(output.description!!, yodaFunTranslationsApiClient)
+                } else {
+                    handleTranslationWithFallback(output.description!!, shakespeareFunTranslationsApiClient)
                 }
         )
     }
