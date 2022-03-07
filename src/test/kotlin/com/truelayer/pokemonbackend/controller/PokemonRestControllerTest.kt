@@ -1,18 +1,16 @@
 package com.truelayer.pokemonbackend.controller
 
+import com.truelayer.pokemonbackend.client.FunTranslationsApiClient
 import com.truelayer.pokemonbackend.client.PokeApiClient
 import com.truelayer.pokemonbackend.client.httpclient.JavaHttpClientPokeApiClient
 import com.truelayer.pokemonbackend.client.model.PokeApiClientPokemonSpecies
-import com.truelayer.pokemonbackend.transport.model.PokemonDescriptionResponse
 import io.mockk.MockKAnnotations
 import io.mockk.every
-import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.MockK
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.mockito.InjectMocks
 import org.springframework.http.HttpStatus
 import org.springframework.web.server.ResponseStatusException
 import kotlin.test.assertFailsWith
@@ -20,10 +18,18 @@ import kotlin.test.assertFailsWith
 internal class PokemonRestControllerTest {
 
     @MockK lateinit var pokeApiClient: PokeApiClient
-    @InjectMockKs lateinit var controller: PokemonRestController
+    @MockK lateinit var yodaFunTranslationsApiClient: FunTranslationsApiClient
+    @MockK lateinit var shakespeareFunTranslationsApiClient: FunTranslationsApiClient
+    private lateinit var controller: PokemonRestController
 
     @BeforeEach
-    fun setUp() = MockKAnnotations.init(this)
+    fun setUp() {
+        MockKAnnotations.init(this)
+        controller = PokemonRestController(
+            pokeApiClient = pokeApiClient,
+            yodaFunTranslationsApiClient = yodaFunTranslationsApiClient,
+            shakespeareFunTranslationsApiClient = shakespeareFunTranslationsApiClient)
+    }
 
     @Test
     fun `Test pokemon method`() {
@@ -102,8 +108,129 @@ internal class PokemonRestControllerTest {
 
     @Test
     fun `Test translatedPokemon method`() {
-        val output = controller.translatedPokemon("pikachu")
-        assertThat(output.name, equalTo("pikachu"))
-        assertThat(output.description, equalTo("translated-pikachu"))
+        // Arrange
+        val pokemonName = "Boris"
+        val habitat = "London"
+        val flavorText = "I'm Boris the British Pokemon"
+        val clientOutput =  PokeApiClientPokemonSpecies(
+            name = pokemonName,
+            legendary = false,
+            habitatName = habitat,
+            flavorText = flavorText,
+        )
+        val translated = "British Pokemon Boris I am"
+        every { pokeApiClient.getPokemonData(pokemonName) } returns Result.success(clientOutput)
+        every { yodaFunTranslationsApiClient.translate(flavorText) } returns Result.success(FunTranslationsApiClient.Translated(translated))
+
+        // Act
+        val output = controller.translatedPokemon(pokemonName)
+
+        // Assert
+        assertThat(output.name, equalTo(pokemonName))
+        assertThat(output.description, equalTo(translated))
+        assertThat(output.habitat, equalTo(habitat))
+        assertThat(output.legendary, equalTo(false))
+    }
+
+    @Test
+    fun `Test translatedPokemon method fallback`() {
+        // Arrange
+        val pokemonName = "Boris"
+        val habitat = "London"
+        val flavorText = "I'm Boris the British Pokemon"
+        val clientOutput =  PokeApiClientPokemonSpecies(
+            name = pokemonName,
+            legendary = false,
+            habitatName = habitat,
+            flavorText = flavorText,
+        )
+        every { pokeApiClient.getPokemonData(pokemonName) } returns Result.success(clientOutput)
+        every { yodaFunTranslationsApiClient.translate(flavorText) } returns Result.failure(RuntimeException())
+
+        // Act
+        val output = controller.translatedPokemon(pokemonName)
+
+        // Assert
+        assertThat(output.name, equalTo(pokemonName))
+        assertThat(output.description, equalTo(flavorText))
+        assertThat(output.habitat, equalTo(habitat))
+        assertThat(output.legendary, equalTo(false))
+    }
+
+    @Test
+    fun `Test legendary translatedPokemon method`() {
+        // Arrange
+        val pokemonName = "LegendJerry"
+        val habitat = "London"
+        val flavorText = "I'm not sure"
+        val clientOutput =  PokeApiClientPokemonSpecies(
+            name = pokemonName,
+            legendary = true,
+            habitatName = habitat,
+            flavorText = flavorText,
+        )
+        val translated = "To be or not to be"
+        every { pokeApiClient.getPokemonData(pokemonName) } returns Result.success(clientOutput)
+        every { shakespeareFunTranslationsApiClient.translate(flavorText) } returns Result.success(FunTranslationsApiClient.Translated(translated))
+
+        // Act
+        val output = controller.translatedPokemon(pokemonName)
+
+        // Assert
+        assertThat(output.name, equalTo(pokemonName))
+        assertThat(output.description, equalTo(translated))
+        assertThat(output.habitat, equalTo(habitat))
+        assertThat(output.legendary, equalTo(true))
+    }
+
+    @Test
+    fun `Test cave translatedPokemon method`() {
+        // Arrange
+        val pokemonName = "LegendJerry"
+        val habitat = "cave"
+        val flavorText = "I'm not sure"
+        val clientOutput =  PokeApiClientPokemonSpecies(
+            name = pokemonName,
+            legendary = false,
+            habitatName = habitat,
+            flavorText = flavorText,
+        )
+        val translated = "To be or not to be"
+        every { pokeApiClient.getPokemonData(pokemonName) } returns Result.success(clientOutput)
+        every { shakespeareFunTranslationsApiClient.translate(flavorText) } returns Result.success(FunTranslationsApiClient.Translated(translated))
+
+        // Act
+        val output = controller.translatedPokemon(pokemonName)
+
+        // Assert
+        assertThat(output.name, equalTo(pokemonName))
+        assertThat(output.description, equalTo(translated))
+        assertThat(output.habitat, equalTo(habitat))
+        assertThat(output.legendary, equalTo(false))
+    }
+
+    @Test
+    fun `Test cave translatedPokemon method fallback`() {
+        // Arrange
+        val pokemonName = "LegendJerry"
+        val habitat = "cave"
+        val flavorText = "I'm not sure"
+        val clientOutput =  PokeApiClientPokemonSpecies(
+            name = pokemonName,
+            legendary = false,
+            habitatName = habitat,
+            flavorText = flavorText,
+        )
+        every { pokeApiClient.getPokemonData(pokemonName) } returns Result.success(clientOutput)
+        every { shakespeareFunTranslationsApiClient.translate(flavorText) } returns Result.failure(RuntimeException())
+
+        // Act
+        val output = controller.translatedPokemon(pokemonName)
+
+        // Assert
+        assertThat(output.name, equalTo(pokemonName))
+        assertThat(output.description, equalTo(flavorText))
+        assertThat(output.habitat, equalTo(habitat))
+        assertThat(output.legendary, equalTo(false))
     }
 }

@@ -3,6 +3,7 @@ package com.truelayer.pokemonbackend.client.httpclient
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.truelayer.pokemonbackend.PokemonBackendApplication
 import com.truelayer.pokemonbackend.client.PokeApiClient
 import com.truelayer.pokemonbackend.client.model.PokeApiClientPokemonSpecies
 import org.springframework.beans.factory.annotation.Qualifier
@@ -18,7 +19,8 @@ import java.time.Duration
  * Implements PokeApiClient calling pokeapi.co pokemon-species API. It uses Java HttpClient to make Http calls.
  */
 @Component
-class JavaHttpClientPokeApiClient(@Qualifier("pokeApiTimeoutSeconds") private val timeoutSeconds: Long, private val objectMapper: ObjectMapper) : PokeApiClient {
+class JavaHttpClientPokeApiClient(@Qualifier(PokemonBackendApplication.pokeApiTimeoutSeconds) private val timeoutSeconds: Long,
+                                  private val objectMapper: ObjectMapper) : PokeApiClient {
 
     companion object {
         const val DEFAULT_LANGUAGE_NAME = "en"
